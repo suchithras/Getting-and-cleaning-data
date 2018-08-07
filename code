@@ -1,5 +1,6 @@
 # Getting-and-cleaning-data
 
+if(!file.exists("./data")){dir.create("./data")}
 fileUrl <- "https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip"
 download.file(fileUrl,destfile="./data/Dataset.zip")
 
@@ -28,21 +29,21 @@ colnames(subjecttrain) <- "subjectId"
 colnames(xtest) <- features[,2] 
 colnames(ytest) <- "activityId"
 colnames(subjecttest) <- "subjectId"
-      
+
 colnames(activityLabels) <- c('activityId','activityType')
-mrg_train <- cbind(y_train, subject_train, x_train)
-mrg_test <- cbind(y_test, subject_test, x_test)
-setAllInOne <- rbind(mrg_train, mrg_test)
+mrgtrain <- cbind(ytrain, subjecttrain, xtrain)
+mrgtest <- cbind(ytest, subjecttest, xtest)
+setAllInOne <- rbind(mrgtrain, mrgtest)
 
 #Extracting only the measurements on the mean and standard deviation for each measurement
 
 colNames <- colnames(setAllInOne)
 mean_and_std <- (grepl("activityId" , colNames) | 
-                 grepl("subjectId" , colNames) | 
-                 grepl("mean.." , colNames) | 
-                 grepl("std.." , colNames) 
-                 )
-                 
+                   grepl("subjectId" , colNames) | 
+                   grepl("mean.." , colNames) | 
+                   grepl("std.." , colNames) 
+)
+
 setForMeanAndStd <- setAllInOne[ , mean_and_std == TRUE]
 
 #Using descriptive activity names to name the activities in the data set
@@ -52,6 +53,6 @@ setWithActivityNames <- merge(setForMeanAndStd, activityLabels,
                               all.x=TRUE)
 #Creating a second, independent tidy data set with the average of each variable for each activity and each subject
 
-secTidySet <- aggregate(. ~subjectId + activityId, setWithActivityNames, mean)
-secTidySet <- secTidySet[order(secTidySet$subjectId, secTidySet$activityId),]
-write.table(secTidySet, "secTidySet.txt", row.name=FALSE)
+TidySet <- aggregate(. ~subjectId + activityId, setWithActivityNames, mean)
+TidySet <- TidySet[order(TidySet$subjectId, TidySet$activityId),]
+write.table(TidySet, "TidySet.txt", row.name=FALSE)
